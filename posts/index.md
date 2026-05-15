@@ -11,3 +11,4 @@
 - postgresql-rails
 - background-jobs
 - ai-rails
+- deployment
