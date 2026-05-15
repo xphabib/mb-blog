@@ -118,6 +118,10 @@ a {
   grid-template-columns: 1fr;
 }
 
+.layout:has(.post-list:empty) {
+  grid-template-columns: 1fr;
+}
+
 .layout.home-layout .sidebar {
   display: none;
 }
