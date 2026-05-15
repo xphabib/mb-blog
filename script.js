@@ -10,6 +10,16 @@ let activeSlug = "";
 let activeCategory = "";
 let lastRoute = "home";
 
+function titleFromSlug(slug) {
+  return slug
+    .split("/")
+    .pop()
+    .replace(/\.md$/, "")
+    .replace(/^\d+-/, "")
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
 function slugToPath(slug) {
   return `/${slug.replace(/\.md$/, "")}`;
 }
@@ -149,12 +159,41 @@ function parseFrontMatter(markdown, slug) {
   };
 }
 
+async function loadPost(post) {
+  if (post.loaded) return post;
+
+  const response = await fetch(`/posts/${post.slug}`, { cache: "no-store" });
+  if (!response.ok) throw new Error(`Could not load posts/${post.slug}`);
+
+  const parsedPost = parseFrontMatter(await response.text(), post.slug);
+  Object.assign(post, parsedPost, {
+    category: post.category,
+    categoryTitle: post.categoryTitle,
+    loaded: true,
+  });
+  return post;
+}
+
 function parseIndex(indexMarkdown) {
   return indexMarkdown
     .split(/\r?\n/)
     .map((line) => line.match(/^-\s+(.+?)\s*$/))
     .filter(Boolean)
     .map((match) => match[1]);
+}
+
+function parsePostEntries(indexMarkdown) {
+  return parseIndex(indexMarkdown)
+    .filter((entry) => entry.includes(".md"))
+    .map((entry) => {
+      const [filename, title, excerpt, date] = entry.split("|").map((part) => part.trim());
+      return {
+        filename,
+        title: title || titleFromSlug(filename),
+        excerpt: excerpt || "",
+        date: date || "",
+      };
+    });
 }
 
 function parseCategoryTitle(indexMarkdown, fallback) {
@@ -296,10 +335,30 @@ function renderAbout(updateUrl = true) {
   renderList();
 }
 
-function renderPost(slug, updateUrl = true) {
+async function renderPost(slug, updateUrl = true) {
   const post = posts.find((item) => item.slug === slug) || posts[0];
   if (!post) {
     article.innerHTML = '<p class="empty">No posts yet.</p>';
+    return;
+  }
+
+  article.innerHTML = `
+    <div class="loading-state">
+      <div class="loading-mark" aria-hidden="true"></div>
+      <h1>Preparing Article</h1>
+      <p>Loading the selected note.</p>
+    </div>
+  `;
+
+  try {
+    await loadPost(post);
+  } catch (error) {
+    article.innerHTML = `
+      <div class="error">
+        <strong>Article could not be loaded.</strong>
+        <p>${escapeHtml(error.message)}</p>
+      </div>
+    `;
     return;
   }
 
@@ -387,16 +446,19 @@ async function loadPosts() {
         slug: categorySlug,
         title: parseCategoryTitle(categoryIndex, categorySlug),
       };
-      const filenames = parseIndex(categoryIndex).filter((filename) => filename.endsWith(".md"));
-      const categoryPosts = await Promise.all(filenames.map(async (filename) => {
-        const response = await fetch(`/posts/${categorySlug}/${filename}`, { cache: "no-store" });
-        if (!response.ok) throw new Error(`Could not load posts/${categorySlug}/${filename}`);
+      const postEntries = parsePostEntries(categoryIndex);
+      const categoryPosts = postEntries.map((entry) => {
         return {
-          ...parseFrontMatter(await response.text(), `${categorySlug}/${filename}`),
+          slug: `${categorySlug}/${entry.filename}`,
+          title: entry.title,
+          date: entry.date,
+          excerpt: entry.excerpt,
+          body: "",
           category: category.slug,
           categoryTitle: category.title,
+          loaded: false,
         };
-      }));
+      });
 
       return { category, posts: categoryPosts };
     }));
