@@ -194,7 +194,7 @@
         border-radius: 8px;
         background: var(--panel);
         padding: clamp(20px, 4vw, 44px);
-        min-height: 420px;
+        min-height: calc(100vh - 168px);
       }
 
       .article h1 {
@@ -386,8 +386,35 @@
         border: 1px solid #d9a441;
         background: #fff8e5;
         color: #65420b;
-        padding: 14px;
         border-radius: 8px;
+        display: grid;
+        gap: 12px;
+        justify-items: center;
+        margin: 0 auto;
+        max-width: none;
+        min-height: min(520px, calc(100vh - 260px));
+        padding: clamp(32px, 6vw, 64px);
+        place-content: center;
+        text-align: center;
+        width: 100%;
+      }
+
+      .error strong {
+        color: #4b3108;
+        display: block;
+        font-size: clamp(1.8rem, 4vw, 3rem);
+        line-height: 1.1;
+      }
+
+      .error p {
+        font-size: 1rem;
+        margin: 0;
+      }
+
+      .error code {
+        background: rgba(101, 66, 11, 0.1);
+        border-radius: 8px;
+        padding: 2px 6px;
       }
 
       @media (max-width: 760px) {
@@ -857,6 +884,12 @@
             renderPost(initialPost ? initialPost.slug : posts[0]?.slug);
           }
         } catch (error) {
+          activeSlug = "";
+          activeCategory = "";
+          postList.innerHTML = "";
+          layout.classList.add("home-layout");
+          homeLink.removeAttribute("aria-current");
+          aboutLink.removeAttribute("aria-current");
           article.innerHTML = `
             <div class="error">
               <strong>Posts could not be loaded.</strong>
