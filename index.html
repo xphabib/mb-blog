@@ -199,7 +199,7 @@
 
       .article h1 {
         margin: 0 0 8px;
-        font-size: clamp(2rem, 5vw, 4rem);
+        font-size: clamp(2rem, 5vw, 2.88rem);
         line-height: 1.02;
         letter-spacing: 0;
       }
@@ -632,7 +632,7 @@
               ${categoryPosts.map((post) => `
                 <button class="post-button" type="button" data-slug="${post.slug}" aria-current="${post.slug === activeSlug}">
                   <strong>${escapeHtml(post.title)}</strong>
-                  <span>${escapeHtml(post.date || post.excerpt)}</span>
+                  <span>${escapeHtml(post.excerpt || post.categoryTitle)}</span>
                 </button>
               `).join("")}
             </section>
@@ -758,7 +758,7 @@
         location.hash = post.slug.replace(/\.md$/, "");
         article.innerHTML = `
           <h1>${escapeHtml(post.title)}</h1>
-          <p class="meta">${escapeHtml([post.categoryTitle, post.date, post.excerpt].filter(Boolean).join(" · "))}</p>
+          <p class="meta">${escapeHtml([post.categoryTitle, post.excerpt].filter(Boolean).join(" · "))}</p>
           <div class="content">${markdownToHtml(post.body)}</div>
           <nav class="post-nav" aria-label="Post navigation">
             <button class="nav-button previous" type="button" data-slug="${previousPost ? escapeHtml(previousPost.slug) : ""}" ${previousPost ? "" : "disabled"}>
