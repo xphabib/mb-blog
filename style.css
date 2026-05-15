@@ -69,7 +69,7 @@ a {
 .brand-link:hover,
 .brand-link[aria-current="page"] {
   color: var(--accent-strong);
-  box-shadow: 0 0 0 3px rgba(15, 107, 87, 0.1);
+  box-shadow: 0 0 0 1px rgba(15, 107, 87, 0.1);
 }
 
 .header-actions {
@@ -241,6 +241,43 @@ a {
 
 .contact-list a {
   overflow-wrap: anywhere;
+}
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  margin-top: 48px;
+}
+
+.footer-inner {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  margin: 0 auto;
+  min-height: 84px;
+  width: min(1120px, calc(100% - 32px));
+}
+
+.footer-inner p {
+  margin: 0;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.footer-links a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: var(--accent-strong);
+  text-decoration: underline;
 }
 
 .skill-list {
@@ -492,5 +529,16 @@ a {
 
   .nav-button.next {
     text-align: left;
+  }
+
+  .footer-inner {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    padding: 22px 0;
+  }
+
+  .footer-links {
+    justify-content: flex-start;
   }
 }
